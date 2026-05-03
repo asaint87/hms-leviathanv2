@@ -155,18 +155,22 @@ export function Engineer({ socket, readOnly = false }: Props) {
         </div>
       )}
 
-      {/* Top instrument row: Hull + System overview */}
-      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-        <InstrumentPanel label="Hull" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* Top instrument row: Hull + Systems + Power Load — full width, large gauges */}
+      <div style={{
+        display: 'flex',
+        gap: '0.75rem',
+        width: '100%',
+      }}>
+        <InstrumentPanel label="Hull Integrity" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <Gauge
             value={hullPct}
-            size={100}
+            size={140}
             label="HULL"
             accentColor="var(--station-accent)"
           />
         </InstrumentPanel>
 
-        <InstrumentPanel label="Systems" style={{ display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center' }}>
+        <InstrumentPanel label="Systems Status" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'center', padding: '1rem' }}>
           {(['engines', 'sonar', 'shields', 'comms', 'lights'] as const).map((sys) => (
             <StatusLight
               key={sys}
@@ -176,17 +180,17 @@ export function Engineer({ socket, readOnly = false }: Props) {
                 power.overheat[sys].state === 'warning' ? 'yellow' :
                 power.allocations[sys] >= 1 ? 'green' : 'off'
               }
-              size={10}
-              label={sys.slice(0, 3)}
+              size={14}
+              label={sys}
               pulse={power.overheat[sys].state === 'critical'}
             />
           ))}
         </InstrumentPanel>
 
-        <InstrumentPanel label="Power Load" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <InstrumentPanel label="Power Load" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <Gauge
             value={(Object.values(power.allocations).reduce((a, b) => a + b, 0) + power.locked) / power.total}
-            size={100}
+            size={140}
             label="LOAD"
             accentColor="var(--copper)"
             zones={[

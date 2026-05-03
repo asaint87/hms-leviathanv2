@@ -4,6 +4,7 @@ import { useStationAudio } from '../../hooks/useStationAudio';
 import { InstrumentPanel } from '../ui/InstrumentPanel';
 import { Gauge } from '../ui/Gauge';
 import { StatusLight } from '../ui/StatusLight';
+import { DepthBar } from '../ui/DepthBar';
 import { SonarSweep } from '../../displays/SonarSweep';
 
 interface Props {
@@ -26,7 +27,6 @@ export function Sonar({ socket, readOnly = false }: Props) {
       setCommendFlash(true);
       setCommendBoost(true);
       setTimeout(() => setCommendFlash(false), 2000);
-      // Boost lasts 60 seconds
       setTimeout(() => setCommendBoost(false), 60000);
     };
 
@@ -64,120 +64,97 @@ export function Sonar({ socket, readOnly = false }: Props) {
   return (
     <div style={{
       display: 'flex',
-      flexDirection: 'column',
       height: '100%',
-      gap: '0.5rem',
       padding: '0.5rem',
-      alignItems: 'center',
+      gap: '0.5rem',
       position: 'relative',
     }}>
       {/* Captain hat icon */}
       {isScoped && (
         <div style={{
-          position: 'fixed',
-          top: 50,
-          right: 12,
-          fontSize: '1.5rem',
-          opacity: 0.6,
-          animation: 'scope-glow 2s ease-in-out infinite',
-          zIndex: 50,
-        }}>
-          &#x1F3A9;
-        </div>
+          position: 'fixed', top: 50, right: 12,
+          fontSize: '1.5rem', opacity: 0.6,
+          animation: 'scope-glow 2s ease-in-out infinite', zIndex: 50,
+        }}>&#x1F3A9;</div>
       )}
 
       {/* Commend flash overlay */}
       {commendFlash && (
         <div style={{
-          position: 'absolute',
-          inset: 0,
+          position: 'absolute', inset: 0,
           background: 'rgba(201, 168, 76, 0.08)',
           border: '2px solid rgba(201, 168, 76, 0.3)',
-          borderRadius: 8,
-          zIndex: 30,
-          pointerEvents: 'none',
+          borderRadius: 8, zIndex: 30, pointerEvents: 'none',
           animation: 'commend-fade 2s ease-out forwards',
         }} />
       )}
 
-      {/* Top instruments row */}
+      {/* LEFT PANEL — ~1/3 width */}
       <div style={{
+        width: '22%',
+        minWidth: 120,
         display: 'flex',
+        flexDirection: 'column',
         gap: '0.5rem',
-        width: '100%',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
       }}>
-        <InstrumentPanel label="Power" style={{ padding: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Gauge
-              value={powerLevel / 3}
-              size={60}
-              accentColor="#00e5ff"
-              zones={[
-                { start: 0, end: 0.33, color: 'var(--status-red)' },
-                { start: 0.33, end: 0.66, color: 'var(--status-yellow)' },
-                { start: 0.66, end: 1, color: 'var(--status-green)' },
-              ]}
-            />
-            <div style={{
-              fontSize: '0.6rem',
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--text-dim)',
-              lineHeight: 1.8,
-            }}>
-              <div style={{ color: '#00e5ff' }}>{sonar.range}m</div>
-              <div>RANGE</div>
-            </div>
+        <InstrumentPanel label="Sonar Power" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Gauge
+            value={powerLevel / 3}
+            size={110}
+            accentColor="#00e5ff"
+            label="POWER"
+            zones={[
+              { start: 0, end: 0.33, color: 'var(--status-red)' },
+              { start: 0.33, end: 0.66, color: 'var(--status-yellow)' },
+              { start: 0.66, end: 1, color: 'var(--status-green)' },
+            ]}
+          />
+          <div style={{
+            textAlign: 'center', marginTop: 8,
+            fontSize: '1.1rem', fontFamily: 'var(--font-mono)', color: '#00e5ff',
+          }}>
+            {sonar.range}m
+          </div>
+          <div style={{
+            fontSize: '0.6rem', fontFamily: 'var(--font-mono)',
+            color: 'var(--text-dim)', letterSpacing: '0.15em', textAlign: 'center',
+          }}>
+            RANGE
           </div>
         </InstrumentPanel>
 
-        <InstrumentPanel label="Contacts" style={{ padding: '0.5rem' }}>
+        <InstrumentPanel label="Contacts" style={{ padding: '0.75rem' }}>
           <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 4,
-            fontSize: '0.6rem',
-            fontFamily: 'var(--font-mono)',
+            display: 'flex', flexDirection: 'column', gap: 8,
+            fontSize: '0.85rem', fontFamily: 'var(--font-mono)',
           }}>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <StatusLight status={sonar.contacts.length > 0 ? 'green' : 'off'} size={8} />
-              <span style={{ color: 'var(--text-secondary)' }}>{sonar.contacts.length} TOTAL</span>
+              <StatusLight status={sonar.contacts.length > 0 ? 'green' : 'off'} size={12} />
+              <span style={{ color: 'var(--text-secondary)' }}>{sonar.contacts.length}</span>
+              <span style={{ color: 'var(--text-dim)', fontSize: '0.6rem' }}>TOTAL</span>
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <StatusLight status={pingedCount > 0 ? 'yellow' : 'off'} size={8} />
-              <span style={{ color: 'var(--text-secondary)' }}>{pingedCount} IDENT</span>
+              <StatusLight status={pingedCount > 0 ? 'yellow' : 'off'} size={12} />
+              <span style={{ color: 'var(--text-secondary)' }}>{pingedCount}</span>
+              <span style={{ color: 'var(--text-dim)', fontSize: '0.6rem' }}>IDENT</span>
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <StatusLight status={trackedCount > 0 ? 'green' : 'off'} size={8} />
-              <span style={{ color: 'var(--text-secondary)' }}>{trackedCount} TRACK</span>
-            </div>
-          </div>
-        </InstrumentPanel>
-
-        <InstrumentPanel label="Depth" style={{ padding: '0.5rem' }}>
-          <div style={{
-            textAlign: 'center',
-            fontFamily: 'var(--font-mono)',
-          }}>
-            <div style={{ fontSize: '1.4rem', color: '#00e5ff' }}>
-              {sub.position.depth.toFixed(0)}
-            </div>
-            <div style={{ fontSize: '0.5rem', color: 'var(--text-dim)', letterSpacing: '0.15em' }}>
-              METERS
+              <StatusLight status={trackedCount > 0 ? 'green' : 'off'} size={12} />
+              <span style={{ color: 'var(--text-secondary)' }}>{trackedCount}</span>
+              <span style={{ color: 'var(--text-dim)', fontSize: '0.6rem' }}>TRACK</span>
             </div>
           </div>
         </InstrumentPanel>
       </div>
 
-      {/* Main sonar display */}
+      {/* CENTER — Sonar sweep */}
       <div style={{
         flex: 1,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '100%',
-        minHeight: 0,
+        minWidth: 0,
       }}>
         <SonarSweep
           contacts={sonar.contacts}
@@ -189,21 +166,53 @@ export function Sonar({ socket, readOnly = false }: Props) {
           readOnly={readOnly}
           commendBoost={commendBoost}
         />
+        <div style={{
+          fontSize: '0.65rem', fontFamily: 'var(--font-mono)',
+          color: 'var(--text-dim)', marginTop: 4, textAlign: 'center',
+        }}>
+          TAP BLIP: PING &nbsp;|&nbsp; TAP AGAIN: TRACK
+        </div>
       </div>
 
-      {/* Bottom info bar */}
+      {/* RIGHT PANEL — ~1/3 width */}
       <div style={{
+        width: '22%',
+        minWidth: 120,
         display: 'flex',
-        justifyContent: 'space-between',
-        width: '100%',
-        maxWidth: 500,
-        fontSize: '0.55rem',
-        fontFamily: 'var(--font-mono)',
-        color: 'var(--text-dim)',
-        padding: '0.25rem 0.5rem',
+        flexDirection: 'column',
+        gap: '0.5rem',
       }}>
-        <span>TAP: PING | SELECT+TAP: TRACK</span>
-        <span>HDG: {sub.heading}&deg;</span>
+        <InstrumentPanel label="Depth" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <DepthBar depth={sub.position.depth} height={160} />
+        </InstrumentPanel>
+
+        <InstrumentPanel label="Heading" style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            fontSize: '2rem', fontFamily: 'var(--font-mono)', color: '#00e5ff',
+          }}>
+            {sub.heading}&deg;
+          </div>
+          <div style={{
+            fontSize: '0.6rem', fontFamily: 'var(--font-mono)',
+            color: 'var(--text-dim)', letterSpacing: '0.15em',
+          }}>
+            HEADING
+          </div>
+        </InstrumentPanel>
+
+        <InstrumentPanel label="Speed" style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            fontSize: '1.5rem', fontFamily: 'var(--font-mono)', color: '#00e5ff',
+          }}>
+            {sub.velocity.toFixed(1)}
+          </div>
+          <div style={{
+            fontSize: '0.6rem', fontFamily: 'var(--font-mono)',
+            color: 'var(--text-dim)', letterSpacing: '0.15em',
+          }}>
+            KNOTS
+          </div>
+        </InstrumentPanel>
       </div>
 
       <style>{`

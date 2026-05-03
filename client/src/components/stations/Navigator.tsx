@@ -71,27 +71,25 @@ export function Navigator({ socket, readOnly = false }: Props) {
         </div>
       )}
 
-      {/* Top instruments row */}
+      {/* Top instruments row — full width, large */}
       <div style={{
         display: 'flex',
         gap: '0.5rem',
         width: '100%',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
         flexShrink: 0,
       }}>
-        <InstrumentPanel label="Compass" style={{ padding: '0.4rem' }}>
+        <InstrumentPanel label="Compass" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <RadialDial
             value={sub.heading}
-            size={80}
+            size={120}
             accentColor="#d4a855"
           />
         </InstrumentPanel>
 
-        <InstrumentPanel label="Speed" style={{ padding: '0.4rem' }}>
+        <InstrumentPanel label="Speed" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <Gauge
             value={speedPct}
-            size={70}
+            size={120}
             label="KTS"
             accentColor="#d4a855"
             zones={[
@@ -102,14 +100,14 @@ export function Navigator({ socket, readOnly = false }: Props) {
           />
         </InstrumentPanel>
 
-        <InstrumentPanel label="Depth" style={{ padding: '0.4rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <DepthBar depth={sub.position.depth} height={80} />
+        <InstrumentPanel label="Depth" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <DepthBar depth={sub.position.depth} height={120} />
             {!readOnly && (
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 4,
+                gap: 6,
               }}>
                 <button
                   onClick={() => handleAdjustDepth(Math.max(0, sub.position.depth - 25))}
@@ -118,7 +116,7 @@ export function Navigator({ socket, readOnly = false }: Props) {
                   &#9650;
                 </button>
                 <span style={{
-                  fontSize: '0.65rem',
+                  fontSize: '0.9rem',
                   fontFamily: 'var(--font-mono)',
                   color: '#d4a855',
                   textAlign: 'center',
@@ -136,20 +134,17 @@ export function Navigator({ socket, readOnly = false }: Props) {
           </div>
         </InstrumentPanel>
 
-        <InstrumentPanel label="Explored" style={{ padding: '0.4rem' }}>
+        <InstrumentPanel label="Explored" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <div style={{
-            textAlign: 'center',
-            fontFamily: 'var(--font-mono)',
+            fontSize: '2.5rem', fontFamily: 'var(--font-mono)', color: '#d4a855',
           }}>
-            <div style={{ fontSize: '1.4rem', color: '#d4a855' }}>
-              {explored}
-            </div>
-            <div style={{ fontSize: '0.5rem', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>
-              SECTORS
-            </div>
-            <div style={{ fontSize: '0.5rem', color: 'var(--text-dim)', marginTop: 2 }}>
-              WP: {navigation.coursePath.length}
-            </div>
+            {explored}
+          </div>
+          <div style={{ fontSize: '0.6rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', letterSpacing: '0.15em' }}>
+            SECTORS
+          </div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', marginTop: 6 }}>
+            COURSE: {navigation.coursePath.length} WP
           </div>
         </InstrumentPanel>
       </div>

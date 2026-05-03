@@ -16,6 +16,7 @@ import {
   getRoomBySocketId,
 } from './rooms.js';
 import { startGameLoop } from './game-loop.js';
+import { startMission, advanceMission, crewReady, handleActionAutoConfirm } from './missions/engine.js';
 
 // Track active game loops per room code
 const gameLoops = new Map<string, ReturnType<typeof setInterval>>();
@@ -146,6 +147,9 @@ io.on('connection', (socket) => {
     // Update lastAction timestamp
     const crew = state.crew.engineer;
     if (crew) crew.lastAction = Date.now();
+
+    // Mission auto-confirm
+    handleActionAutoConfirm(io, room, 'engineer', 'allocate_power');
   });
 
   socket.on('vent_system', ({ system }) => {
@@ -233,6 +237,8 @@ io.on('connection', (socket) => {
         break;
       }
     }
+
+    handleActionAutoConfirm(io, room, 'sonar', 'ping_contact');
   });
 
   socket.on('track_contact', ({ contactId }) => {
@@ -248,6 +254,8 @@ io.on('connection', (socket) => {
 
     const crew = state.crew.sonar;
     if (crew) crew.lastAction = Date.now();
+
+    handleActionAutoConfirm(io, room, 'sonar', 'track_contact');
   });
 
   socket.on('untrack_contact', ({ contactId }) => {
@@ -298,6 +306,8 @@ io.on('connection', (socket) => {
 
     const crew = state.crew.signals;
     if (crew) crew.lastAction = Date.now();
+
+    handleActionAutoConfirm(io, room, 'signals', 'decode_transmission');
   });
 
   socket.on('name_contact', ({ contactId, name, symbol }) => {
@@ -355,6 +365,8 @@ io.on('connection', (socket) => {
 
     const crew = state.crew.navigator;
     if (crew) crew.lastAction = Date.now();
+
+    handleActionAutoConfirm(io, room, 'navigator', 'plot_course');
   });
 
   socket.on('adjust_depth', ({ depth }) => {
@@ -367,6 +379,8 @@ io.on('connection', (socket) => {
 
     const crew = room.worldState.crew.navigator;
     if (crew) crew.lastAction = Date.now();
+
+    handleActionAutoConfirm(io, room, 'navigator', 'adjust_depth');
   });
 
   socket.on('mark_contact', ({ bearing, distance }) => {
@@ -502,6 +516,26 @@ io.on('connection', (socket) => {
       preset,
       message: messages[preset] || preset.toUpperCase(),
     });
+  });
+
+  // --- Mission Events ---
+
+  socket.on('start_mission', ({ missionId }) => {
+    const found = getRoomBySocketId(socket.id);
+    if (!found) return;
+    startMission(io, found.room, missionId);
+  });
+
+  socket.on('advance_mission', () => {
+    const found = getRoomBySocketId(socket.id);
+    if (!found) return;
+    advanceMission(io, found.room);
+  });
+
+  socket.on('crew_ready', ({ station }) => {
+    const found = getRoomBySocketId(socket.id);
+    if (!found) return;
+    crewReady(io, found.room, station);
   });
 
   // --- Disconnect ---

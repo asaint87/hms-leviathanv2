@@ -1,4 +1,5 @@
 import type { WorldState, Station, Condition, PowerSystem } from './world-state.js';
+import type { MissionStep, MissionState, CrewTask } from './mission.js';
 
 // === Client → Server Events ===
 
@@ -38,6 +39,11 @@ export interface ClientToServerEvents {
   unscope: () => void;
   commend_station: (data: { station: Station }) => void;
   flash_alert: (data: { preset: 'dive' | 'hold' | 'eyes_sonar' | 'brace' }) => void;
+
+  // Mission
+  start_mission: (data: { missionId: string }) => void;
+  advance_mission: () => void;                           // captain taps CONTINUE
+  crew_ready: (data: { station: Station }) => void;      // crew taps READY
 }
 
 // === Server → Client Events ===
@@ -63,6 +69,18 @@ export interface ServerToClientEvents {
   emergency_power_active: (data: { duration: number }) => void;
   emergency_power_cooldown: (data: { duration: number; reducedPool: number }) => void;
   flash_alert: (data: { preset: string; message: string }) => void;
+
+  // Mission
+  mission_started: (data: { missionId: string; brief: string; missionName: string }) => void;
+  mission_step: (data: {
+    step: MissionStep;
+    stepIndex: number;
+    totalSteps: number;
+    missionState: MissionState;
+  }) => void;
+  mission_task: (data: { task: CrewTask; stepId: string }) => void;  // sent to specific station
+  mission_crew_confirmed: (data: { station: Station; stepId: string }) => void;
+  mission_complete: (data: { missionId: string }) => void;
 
   // Errors
   error: (data: { message: string }) => void;

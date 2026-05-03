@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Station } from '@leviathan/shared';
+import type { Station, CrewTask } from '@leviathan/shared';
 import { useWorldState } from '../../hooks/useWorldState';
 import { useStationAudio } from '../../hooks/useStationAudio';
 import { Engineer } from './Engineer';
@@ -7,6 +7,7 @@ import { Captain } from './Captain';
 import { Sonar } from './Sonar';
 import { Navigator } from './Navigator';
 import { Signals } from './Signals';
+import { MissionTaskCard } from '../ui/MissionTaskCard';
 
 interface Props {
   station: Station;
@@ -78,6 +79,10 @@ function StationContent({ station, socket, readOnly }: { station: Station; socke
 export function StationView({ station, roomCode, socket, onLeave, readOnly = false }: Props) {
   const worldState = useWorldState();
   const [flashAlert, setFlashAlert] = useState<string | null>(null);
+  const [missionTask, setMissionTask] = useState<CrewTask | null>(null);
+  const [missionStepId, setMissionStepId] = useState<string | null>(null);
+  const [missionBrief, setMissionBrief] = useState<string | null>(null);
+  const [missionName, setMissionName] = useState<string | null>(null);
 
   // Listen for flash alerts
   useEffect(() => {
@@ -88,6 +93,47 @@ export function StationView({ station, roomCode, socket, onLeave, readOnly = fal
     socket.on('flash_alert', onFlashAlert);
     return () => { socket.off('flash_alert', onFlashAlert); };
   }, [socket]);
+
+  // Listen for mission events (crew stations only)
+  useEffect(() => {
+    if (station === 'captain') return;
+
+    const onMissionStarted = ({ brief, missionName: name }: { brief: string; missionName: string }) => {
+      setMissionBrief(brief);
+      setMissionName(name);
+    };
+
+    const onMissionTask = ({ task, stepId }: { task: CrewTask; stepId: string }) => {
+      setMissionBrief(null);
+      setMissionTask(task);
+      setMissionStepId(stepId);
+    };
+
+    const onMissionStep = () => {
+      // Clear task when step changes (we'll get a new mission_task if we're involved)
+      setMissionTask(null);
+      setMissionStepId(null);
+      setMissionBrief(null);
+    };
+
+    const onMissionComplete = () => {
+      setMissionTask(null);
+      setMissionStepId(null);
+      setMissionBrief(null);
+    };
+
+    socket.on('mission_started', onMissionStarted);
+    socket.on('mission_task', onMissionTask);
+    socket.on('mission_step', onMissionStep);
+    socket.on('mission_complete', onMissionComplete);
+
+    return () => {
+      socket.off('mission_started', onMissionStarted);
+      socket.off('mission_task', onMissionTask);
+      socket.off('mission_step', onMissionStep);
+      socket.off('mission_complete', onMissionComplete);
+    };
+  }, [socket, station]);
 
   if (!worldState) {
     return (
@@ -210,6 +256,18 @@ export function StationView({ station, roomCode, socket, onLeave, readOnly = fal
       <div style={{ flex: 1, overflow: 'auto' }}>
         <StationContent station={station} socket={socket} readOnly={readOnly} />
       </div>
+
+      {/* Mission task card (crew stations only) */}
+      {station !== 'captain' && !readOnly && (
+        <MissionTaskCard
+          task={missionTask}
+          stepId={missionStepId}
+          onReady={() => socket.emit('crew_ready', { station })}
+          missionBrief={missionBrief}
+          missionName={missionName}
+          onDismissBrief={() => setMissionBrief(null)}
+        />
+      )}
 
       <style>{`
         @keyframes flash-overlay {
