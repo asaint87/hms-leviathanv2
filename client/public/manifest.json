@@ -1,0 +1,10 @@
+{
+  "name": "HMS Leviathan",
+  "short_name": "Leviathan",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0e14",
+  "theme_color": "#0a0e14",
+  "description": "Family co-op submarine command game"
+}

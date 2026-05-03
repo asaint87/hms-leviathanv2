@@ -1,0 +1,142 @@
+:root {
+  /* Base palette */
+  --bg-deep: #0a0e14;
+  --bg-panel: #111820;
+  --bg-surface: #1a2230;
+  --text-primary: #e0d9c8;
+  --text-secondary: #7a8a9e;
+  --text-dim: #4a5568;
+
+  /* Brass / metal accents */
+  --brass: #c9a84c;
+  --brass-bright: #e0c068;
+  --brass-dim: #8a7234;
+  --copper: #d4915e;
+  --steel: #6b7d8e;
+
+  /* Status colors */
+  --status-green: #2ecc71;
+  --status-yellow: #f1c40f;
+  --status-red: #e74c3c;
+  --status-blue: #3498db;
+
+  /* Station themes (overridden per station) */
+  --station-primary: var(--bg-deep);
+  --station-accent: var(--brass);
+
+  /* Instrument styling */
+  --panel-border: 1px solid rgba(201, 168, 76, 0.15);
+  --panel-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --glow-soft: 0 0 10px rgba(201, 168, 76, 0.15);
+  --glow-accent: 0 0 15px currentColor;
+
+  /* Typography */
+  --font-display: 'Georgia', serif;
+  --font-mono: 'Courier New', monospace;
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Station theme overrides */
+[data-station="sonar"] {
+  --station-primary: #0a1628;
+  --station-accent: #00e5ff;
+}
+
+[data-station="navigator"] {
+  --station-primary: #0d2b2b;
+  --station-accent: #d4a855;
+}
+
+[data-station="engineer"] {
+  --station-primary: #1a1a1a;
+  --station-accent: #d4915e;
+}
+
+[data-station="signals"] {
+  --station-primary: #0f1923;
+  --station-accent: #4fc3f7;
+}
+
+[data-station="captain"] {
+  --station-primary: #0a1832;
+  --station-accent: #c9a84c;
+}
+
+/* === Responsive & Touch === */
+
+/* Prevent text selection on game elements */
+[data-station] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Larger touch targets on mobile */
+@media (max-width: 768px) {
+  button {
+    min-height: 36px;
+    min-width: 36px;
+  }
+}
+
+/* Tablet landscape — primary play mode */
+@media (min-width: 768px) and (orientation: landscape) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+/* Tablet portrait */
+@media (min-width: 768px) and (orientation: portrait) {
+  :root {
+    font-size: 15px;
+  }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+  :root {
+    font-size: 14px;
+  }
+}
+
+/* Safe area for notched devices */
+@supports (padding: env(safe-area-inset-top)) {
+  #root {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Prevent overscroll/bounce on iOS */
+html, body {
+  overscroll-behavior: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Smooth scrolling in scroll containers */
+[style*="overflow: auto"], [style*="overflow-y: auto"] {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-surface) transparent;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}
